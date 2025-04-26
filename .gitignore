@@ -1,0 +1,35 @@
+# Backend (Spring Boot)
+backend/target/
+backend/.mvn/
+backend/mvnw
+backend/mvnw.cmd
+backend/*.log
+backend/.idea/
+backend/.classpath
+backend/.project
+backend/.settings/
+backend/.vscode/
+backend/*.iml
+
+# Frontend (Angular)
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+frontend/.env
+frontend/.vscode/
+
+# OS / Editor specific
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# General
+*.log
+*.tmp
+*.bak
+*.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
