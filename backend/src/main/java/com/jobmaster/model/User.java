@@ -40,5 +40,6 @@ public class User {
     private String password;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<JobApplication> jobApplications = new ArrayList<>();
 }
