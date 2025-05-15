@@ -34,7 +34,7 @@ public class WebSecurityConfiguration {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/signup", "/authenticate").permitAll()
+                .requestMatchers("/signup", "/login").permitAll()
                 .anyRequest().authenticated())
             .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
             .cors(cors -> cors.configurationSource(corsConfigurationSource()));
