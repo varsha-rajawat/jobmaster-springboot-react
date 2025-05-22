@@ -1,25 +1,23 @@
 package com.jobmaster.service;
 
-import com.jobmaster.model.User;
-import com.jobmaster.repository.UserRepository;
-import com.jobmaster.dto.AuthResponseDTO;
-import com.jobmaster.dto.AuthenticationDTO;
+import java.util.ArrayList;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import com.jobmaster.model.User;
+import com.jobmaster.repository.UserRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private JwtService jwtService;
+    private final UserRepository userRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -32,14 +30,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                 new ArrayList<>()
         );
     }
+    
+    
 
-    public AuthResponseDTO getAuthResponseDTO(AuthenticationDTO dto) {
-        UserDetails userDetails = loadUserByUsername(dto.username());
-        User user = userRepository.findByEmail(userDetails.getUsername())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-
-        String jwt = jwtService.generateToken(userDetails);
-
-        return new AuthResponseDTO("Login successful", user.getId(), jwt);
-    }
 }

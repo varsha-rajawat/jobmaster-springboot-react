@@ -1,10 +1,8 @@
-import axios from 'axios';
+import api from './api';
 
-const BASE_API = 'http://localhost:8080';
+export const signup = (userData) => api.post(`/signup`, userData);
 
-export const register = (userData) => axios.post(`${BASE_API}/signup`, userData);
-
-export const login = (userData) => axios.post(`${BASE_API}/login`, userData);
+export const loginUser = (userData) => api.post(`/login`, userData);
 
 export const setToken = (token) => {localStorage.setItem('token', token)};
 

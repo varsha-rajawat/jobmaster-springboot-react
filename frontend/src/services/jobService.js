@@ -1,19 +1,14 @@
-import axios from 'axios';
-import { getToken } from './authService';
+import api from './api';
 
-const BASE_API = 'http://localhost:8080/jobs';
+const BASE_PATH = '/jobs';
 
-const authHeader = () => ({
-    headers: { Authorization : `Bearer ${getToken()}`}
-});
+export const fetchJobs = () => api.get(BASE_PATH);
 
-export const fetchJobs = () => axios.get(BASE_API, authHeader());
+export const createJob = (jobData) => api.post(BASE_PATH, jobData);
 
-export const createJob = (jobData) => axios.post(BASE_API, jobData, authHeader());
+export const updateJob = (id, jobData) => api.put(`${BASE_PATH}/${id}`, jobData);
 
-export const updateJob = (id, jobData) => axios.put(`${BASE_API}/${id}`, jobData, authHeader());
-
-export const deleteJob = (id) => axios.delete(`${BASE_API}/${id}`, authHeader());
+export const deleteJob = (id) => api.delete(`${BASE_PATH}/${id}`);
 
 
 
