@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { register } from "../services/authService";
+import { signup } from "../services/authService";
 import { useNavigate } from "react-router-dom";
 
 const RegisterPage = () => {
@@ -13,7 +13,7 @@ const RegisterPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await register(form);
+      await signup(form);
       navigate('/');
     }
     catch (err) {
