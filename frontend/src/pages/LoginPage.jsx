@@ -1,6 +1,5 @@
 import { useState, useContext} from "react";
-import {loginUser, setToken} from "../services/authService";
-import { useNavigate } from "react-router-dom";
+import {loginUser} from "../services/authService";
 import { AuthContext } from "../context/AuthContext";
 
 const LoginPage = () => {
