@@ -1,27 +1,25 @@
-import { useEffect, useState, useContext} from 'react';
-import { fetchJobs } from '../services/jobService';
+import { useContext } from 'react';
+import { useNavigate } from "react-router-dom";
 import { AuthContext } from '../context/AuthContext';
+import JobListPage from '../pages/jobPages/JobListPage';
 
 const DashboardPage = () => {
-  const [jobs, setJobs] = useState([]);
-  const { logout } = useContext(AuthContext);
 
-  useEffect(() => {
-    fetchJobs().then((res) => setJobs(res.data)).catch(console.error);
-  }, []);
+  const { logout } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   return (
-    <div>
-      <h1>Dashboard</h1>
+    <div className="p-6">
       <button onClick={logout}>Logout</button>
-      <h2>My Job Applications</h2>
-      <ul>
-        {jobs.map((job) => (
-          <li key={job.id}>
-            {job.position} at {job.companyName} - {job.status}
-          </li>
-        ))}
-      </ul>
+      <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
+
+      <button
+        onClick={() => navigate("/jobs/new")}
+        className="mb-4 bg-green-600 text-white px-4 py-2 rounded"
+      >
+        + Add New Job
+      </button>
+      <JobListPage />
     </div>
   );
 };
