@@ -21,6 +21,7 @@ const RegisterPage = () => {
         err.response?.data?.message || "Registration failed. Please try again."
       );
     }
+  }
   };
 
   return (
