@@ -23,6 +23,7 @@ const RegisterPage = () => {
     } else {
       setError('Registration failed. Please try again.');
     }
+  }
   };
 
   return (

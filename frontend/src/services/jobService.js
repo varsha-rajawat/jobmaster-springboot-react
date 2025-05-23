@@ -10,6 +10,8 @@ export const updateJob = (id, jobData) => api.put(`${BASE_PATH}/${id}`, jobData)
 
 export const deleteJob = (id) => api.delete(`${BASE_PATH}/${id}`);
 
+export const getJobById = (id) => api.get(`${BASE_PATH}/${id}`);
+
 
 
 
