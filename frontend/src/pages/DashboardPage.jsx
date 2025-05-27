@@ -1,0 +1,367 @@
+import { useState, useEffect } from 'react';
+import {
+  Container, Typography, Table, TableHead, TableBody, TableRow, TableCell,
+  IconButton, Button, Dialog, DialogTitle, DialogContent, DialogActions,
+  TextField, MenuItem, Chip, Box, Grid, Paper
+} from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { fetchJobs, createJob, updateJob, deleteJob } from '../services/jobService';
+import { useNavigate } from 'react-router-dom';
+
+// Status options
+const statusOptions = ['Applied', 'Interview', 'Offer', 'Rejected'];
+
+// Color mapping for status chip
+const statusColor = (status) => {
+  switch(status) {
+    case 'Applied': return 'default';
+    case 'Interview': return 'primary';
+    case 'Offer': return 'success';
+    case 'Rejected': return 'error';
+    default: return 'default';
+  }
+}
+
+const Dashboard = () => {
+  // State
+  const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [filterStatus, setFilterStatus] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [formOpen, setFormOpen] = useState(false);
+  const [formMode, setFormMode] = useState('add'); // or 'edit'
+  const [currentJob, setCurrentJob] = useState(null);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [jobToDelete, setJobToDelete] = useState(null);
+
+  const navigate = useNavigate();
+
+  // Form state
+  const initialFormData = {
+    companyName: '',
+    position: '',
+    location: '',
+    status: 'Applied',
+    appliedDate: '',
+    followUpDate: '',
+    jobLink: '',
+    notes: '',
+  };
+  const [formData, setFormData] = useState(initialFormData);
+
+  // Fetch jobs on mount and after CRUD
+  const loadJobs = async () => {
+    setLoading(true);
+    try {
+      const res = await fetchJobs();
+      setJobs(res.data);
+    } catch (error) {
+       console.log(error);
+      alert('Error loading jobs');
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    loadJobs();
+  }, []);
+
+  // Filter and search jobs
+  const filteredJobs = jobs.filter(job => {
+    const matchesStatus = filterStatus ? job.status === filterStatus : true;
+    const matchesSearch = searchTerm
+      ? job.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        job.position.toLowerCase().includes(searchTerm.toLowerCase())
+      : true;
+    return matchesStatus && matchesSearch;
+  });
+
+  // Handlers
+  const openAddForm = () => {
+    setFormMode('add');
+    setFormData(initialFormData);
+    setFormOpen(true);
+  };
+
+  const openEditForm = (job) => {
+    setFormMode('edit');
+    setCurrentJob(job);
+    setFormData({
+      companyName: job.companyName || '',
+      position: job.position || '',
+      location: job.location || '',
+      status: job.status || 'Applied',
+      appliedDate: job.appliedDate || '',
+      followUpDate: job.followUpDate || '',
+      jobLink: job.jobLink || '',
+      notes: job.notes || '',
+    });
+    setFormOpen(true);
+  };
+
+  const closeForm = () => {
+    setFormOpen(false);
+    setCurrentJob(null);
+  };
+
+  const handleFormChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleFormSubmit = async () => {
+    // Basic validation example
+    if (!formData.companyName || !formData.position) {
+      alert('Company name and position are required');
+      return;
+    }
+
+    try {
+      if (formMode === 'add') {
+        await createJob(formData);
+      } else if (formMode === 'edit' && currentJob) {
+        await updateJob(currentJob.id, formData);
+      }
+      closeForm();
+      loadJobs();
+    } catch (error) {
+       console.log(error);
+      alert('Error saving job');
+    }
+  };
+
+  const openDeleteConfirm = (job) => {
+    setJobToDelete(job);
+    setDeleteConfirmOpen(true);
+  };
+
+  const closeDeleteConfirm = () => {
+    setJobToDelete(null);
+    setDeleteConfirmOpen(false);
+  };
+
+  const handleDelete = async () => {
+    try {
+      if (jobToDelete) {
+        await deleteJob(jobToDelete.id);
+        closeDeleteConfirm();
+        loadJobs();
+      }
+    } catch (error) {
+      console.log(error);
+      alert('Error deleting job');
+    }
+  };
+
+  // Insights calculations
+  const totalJobs = jobs.length;
+  const countByStatus = statusOptions.reduce((acc, status) => {
+    acc[status] = jobs.filter(j => j.status === status).length;
+    return acc;
+  }, {});
+
+  const upcomingFollowUps = jobs.filter(j => {
+    if (!j.followUpDate) return false;
+    const followUp = new Date(j.followUpDate);
+    const now = new Date();
+    const diffDays = (followUp - now) / (1000 * 3600 * 24);
+    return diffDays >= 0 && diffDays <= 7; // next 7 days
+  }).length;
+
+  return (
+    <Container maxWidth="lg" sx={{ mt: 4 }}>
+      <Typography variant="h4" gutterBottom>Job Applications Dashboard</Typography>
+
+      {/* Filters */}
+      <Box display="flex" gap={2} mb={3}>
+        <TextField
+          label="Search company or position"
+          variant="outlined"
+          size="small"
+          value={searchTerm}
+          onChange={e => setSearchTerm(e.target.value)}
+          sx={{ flexGrow: 1 }}
+        />
+        <TextField
+          label="Filter by status"
+          select
+          size="small"
+          value={filterStatus}
+          onChange={e => setFilterStatus(e.target.value)}
+          sx={{ width: 180 }}
+        >
+          <MenuItem value="">All</MenuItem>
+          {statusOptions.map(status => (
+            <MenuItem key={status} value={status}>{status}</MenuItem>
+          ))}
+        </TextField>
+        <Button variant="contained" startIcon={<AddIcon />} onClick={openAddForm}>
+          Add Application
+        </Button>
+      </Box>
+
+      {/* Insights */}
+      <Grid container spacing={2} mb={4}>
+        <Grid item xs={12} sm={4}>
+          <Paper sx={{ p: 2, textAlign: 'center' }}>
+            <Typography variant="h6">Total Applications</Typography>
+            <Typography variant="h4">{totalJobs}</Typography>
+          </Paper>
+        </Grid>
+        {statusOptions.map(status => (
+          <Grid item xs={12} sm={2} key={status}>
+            <Paper sx={{ p: 2, textAlign: 'center' }}>
+              <Typography variant="subtitle1">{status}</Typography>
+              <Chip label={countByStatus[status]} color={statusColor(status)} />
+            </Paper>
+          </Grid>
+        ))}
+        <Grid item xs={12} sm={4}>
+          <Paper sx={{ p: 2, textAlign: 'center' }}>
+            <Typography variant="h6">Upcoming Follow-ups (7 days)</Typography>
+            <Typography variant="h4">{upcomingFollowUps}</Typography>
+          </Paper>
+        </Grid>
+      </Grid>
+
+      {/* Job applications table */}
+      <Table>
+        <TableHead>
+          <TableRow>
+            <TableCell>Company</TableCell>
+            <TableCell>Position</TableCell>
+            <TableCell>Location</TableCell>
+            <TableCell>Status</TableCell>
+            <TableCell>Applied Date</TableCell>
+            <TableCell>Follow-up Date</TableCell>
+            <TableCell>Actions</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {loading ? (
+            <TableRow><TableCell colSpan={7}>Loading...</TableCell></TableRow>
+          ) : filteredJobs.length === 0 ? (
+            <TableRow><TableCell colSpan={7}>No applications found.</TableCell></TableRow>
+          ) : (
+            filteredJobs.map(job => (
+              <TableRow key={job.id} hover>
+                <TableCell onClick={() => navigate(`/jobs/${job.id}`)}
+    style={{ cursor: 'pointer', color: '#1976d2', textDecoration: 'underline' }}>{job.companyName}</TableCell>
+                <TableCell>{job.position}</TableCell>
+                <TableCell>{job.location}</TableCell>
+                <TableCell>
+                  <Chip label={job.status} color={statusColor(job.status)} />
+                </TableCell>
+                <TableCell>{job.appliedDate}</TableCell>
+                <TableCell>{job.followUpDate}</TableCell>
+                <TableCell>
+                  <IconButton onClick={() => openEditForm(job)}><EditIcon /></IconButton>
+                  <IconButton onClick={() => openDeleteConfirm(job)}><DeleteIcon /></IconButton>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
+        </TableBody>
+      </Table>
+
+      {/* Add/Edit Form Dialog */}
+      <Dialog open={formOpen} onClose={closeForm} maxWidth="sm" fullWidth>
+        <DialogTitle>{formMode === 'add' ? 'Add New Application' : 'Edit Application'}</DialogTitle>
+        <DialogContent dividers>
+          <TextField
+            label="Company Name"
+            name="companyName"
+            value={formData.companyName}
+            onChange={handleFormChange}
+            fullWidth margin="normal"
+            required
+          />
+          <TextField
+            label="Position"
+            name="position"
+            value={formData.position}
+            onChange={handleFormChange}
+            fullWidth margin="normal"
+            required
+          />
+          <TextField
+            label="Location"
+            name="location"
+            value={formData.location}
+            onChange={handleFormChange}
+            fullWidth margin="normal"
+          />
+          <TextField
+            label="Status"
+            name="status"
+            select
+            value={formData.status}
+            onChange={handleFormChange}
+            fullWidth margin="normal"
+          >
+            {statusOptions.map(status => (
+              <MenuItem key={status} value={status}>{status}</MenuItem>
+            ))}
+          </TextField>
+          <TextField
+            label="Applied Date"
+            name="appliedDate"
+            type="date"
+            value={formData.appliedDate}
+            onChange={handleFormChange}
+            fullWidth margin="normal"
+            InputLabelProps={{ shrink: true }}
+          />
+          <TextField
+            label="Follow-up Date"
+            name="followUpDate"
+            type="date"
+            value={formData.followUpDate}
+            onChange={handleFormChange}
+            fullWidth margin="normal"
+            InputLabelProps={{ shrink: true }}
+          />
+          <TextField
+            label="Job Link"
+            name="jobLink"
+            value={formData.jobLink}
+            onChange={handleFormChange}
+            fullWidth margin="normal"
+          />
+          <TextField
+            label="Notes"
+            name="notes"
+            value={formData.notes}
+            onChange={handleFormChange}
+            fullWidth
+            margin="normal"
+            multiline
+            rows={4}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeForm}>Cancel</Button>
+          <Button variant="contained" onClick={handleFormSubmit}>
+            {formMode === 'add' ? 'Add' : 'Save'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteConfirmOpen} onClose={closeDeleteConfirm}>
+        <DialogTitle>Confirm Delete</DialogTitle>
+        <DialogContent>
+          Are you sure you want to delete the application for <b>{jobToDelete?.companyName}</b> - <i>{jobToDelete?.position}</i>?
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeDeleteConfirm}>Cancel</Button>
+          <Button variant="contained" color="error" onClick={handleDelete}>Delete</Button>
+        </DialogActions>
+      </Dialog>
+    </Container>
+  );
+};
+
+export default Dashboard;

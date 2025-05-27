@@ -1,13 +1,17 @@
 package com.jobmaster.controller;
 
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.jobmaster.dto.AuthResponseDTO;
 import com.jobmaster.dto.AuthenticationDTO;
 import com.jobmaster.dto.SignUpDTO;
-import com.jobmaster.dto.AuthResponseDTO;
 import com.jobmaster.service.AuthService;
-import com.jobmaster.service.CustomUserDetailsService;
+
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping
@@ -15,7 +19,6 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthService authService;
-    private final CustomUserDetailsService userDetailsService;
 
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@RequestBody SignUpDTO signUpDTO) {
@@ -27,6 +30,6 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponseDTO> authenticate(@RequestBody AuthenticationDTO authDTO) {
-        return ResponseEntity.ok(userDetailsService.getAuthResponseDTO(authDTO));
+        return ResponseEntity.ok(authService.getAuthResponseDTO(authDTO));
     }
 }
