@@ -45,9 +45,6 @@ function App() {
               </PrivateRoute>} />
 
         </Routes>
-
-        {/* <Route path="/jobs/add" element={<PrivateRoute><AddJobPage /></PrivateRoute>} />
-        <Route path="/jobs/edit/:id" element={<PrivateRoute><EditJobPage /></PrivateRoute>} /> */}
       </main>
     </>
   );
