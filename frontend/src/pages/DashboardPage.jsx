@@ -2,83 +2,90 @@ import { useState, useEffect } from 'react';
 import {
   Container, Typography, Table, TableHead, TableBody, TableRow, TableCell,
   IconButton, Button, Dialog, DialogTitle, DialogContent, DialogActions,
-  TextField, MenuItem, Chip, Box, Grid, Paper
+  TextField, MenuItem, Chip, Box, Grid, Paper, Select, InputLabel, FormControl
 } from '@mui/material';
+import Autocomplete from '@mui/material/Autocomplete';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { fetchJobs, createJob, updateJob, deleteJob } from '../services/jobService';
 import { useNavigate } from 'react-router-dom';
+import { fetchCompanies } from '../services/companyService';
 
-// Status options
-const statusOptions = ['Applied', 'Interview', 'Offer', 'Rejected'];
+const statusOptions = ['APPLIED', 'INTERVIEW', 'OFFER', 'REJECTED'];
 
-// Color mapping for status chip
 const statusColor = (status) => {
-  switch(status) {
-    case 'Applied': return 'default';
-    case 'Interview': return 'primary';
-    case 'Offer': return 'success';
-    case 'Rejected': return 'error';
+  switch (status) {
+    case 'APPLIED': return 'default';
+    case 'INTERVIEW': return 'primary';
+    case 'OFFER': return 'success';
+    case 'REJECTED': return 'error';
     default: return 'default';
   }
-}
+};
 
 const Dashboard = () => {
-  // State
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [formOpen, setFormOpen] = useState(false);
-  const [formMode, setFormMode] = useState('add'); // or 'edit'
+  const [formMode, setFormMode] = useState('add');
   const [currentJob, setCurrentJob] = useState(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [jobToDelete, setJobToDelete] = useState(null);
+  const [companies, setCompanies] = useState([]);
 
   const navigate = useNavigate();
 
-  // Form state
   const initialFormData = {
     companyName: '',
     position: '',
     location: '',
-    status: 'Applied',
+    status: 'APPLIED',
     appliedDate: '',
     followUpDate: '',
     jobLink: '',
     notes: '',
   };
+
   const [formData, setFormData] = useState(initialFormData);
 
-  // Fetch jobs on mount and after CRUD
   const loadJobs = async () => {
     setLoading(true);
     try {
       const res = await fetchJobs();
       setJobs(res.data);
     } catch (error) {
-       console.log(error);
+      console.log(error);
       alert('Error loading jobs');
     }
     setLoading(false);
   };
 
+  const loadCompanies = async () => {
+    try {
+      const res = await fetchCompanies();
+      setCompanies(res.data);
+    } catch (error) {
+      console.log('Failed to load companies', error);
+    }
+  };
+
   useEffect(() => {
     loadJobs();
+    loadCompanies();
   }, []);
 
-  // Filter and search jobs
   const filteredJobs = jobs.filter(job => {
     const matchesStatus = filterStatus ? job.status === filterStatus : true;
     const matchesSearch = searchTerm
       ? job.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        job.position.toLowerCase().includes(searchTerm.toLowerCase())
+      job.position.toLowerCase().includes(searchTerm.toLowerCase())
       : true;
     return matchesStatus && matchesSearch;
   });
 
-  // Handlers
   const openAddForm = () => {
     setFormMode('add');
     setFormData(initialFormData);
@@ -92,7 +99,7 @@ const Dashboard = () => {
       companyName: job.companyName || '',
       position: job.position || '',
       location: job.location || '',
-      status: job.status || 'Applied',
+      status: job.status || 'APPLIED',
       appliedDate: job.appliedDate || '',
       followUpDate: job.followUpDate || '',
       jobLink: job.jobLink || '',
@@ -112,7 +119,6 @@ const Dashboard = () => {
   };
 
   const handleFormSubmit = async () => {
-    // Basic validation example
     if (!formData.companyName || !formData.position) {
       alert('Company name and position are required');
       return;
@@ -125,9 +131,10 @@ const Dashboard = () => {
         await updateJob(currentJob.id, formData);
       }
       closeForm();
+      loadCompanies();
       loadJobs();
     } catch (error) {
-       console.log(error);
+      console.log(error);
       alert('Error saving job');
     }
   };
@@ -155,7 +162,6 @@ const Dashboard = () => {
     }
   };
 
-  // Insights calculations
   const totalJobs = jobs.length;
   const countByStatus = statusOptions.reduce((acc, status) => {
     acc[status] = jobs.filter(j => j.status === status).length;
@@ -167,7 +173,7 @@ const Dashboard = () => {
     const followUp = new Date(j.followUpDate);
     const now = new Date();
     const diffDays = (followUp - now) / (1000 * 3600 * 24);
-    return diffDays >= 0 && diffDays <= 7; // next 7 days
+    return diffDays >= 0 && diffDays <= 7;
   }).length;
 
   return (
@@ -247,8 +253,12 @@ const Dashboard = () => {
           ) : (
             filteredJobs.map(job => (
               <TableRow key={job.id} hover>
-                <TableCell onClick={() => navigate(`/jobs/${job.id}`)}
-    style={{ cursor: 'pointer', color: '#1976d2', textDecoration: 'underline' }}>{job.companyName}</TableCell>
+                <TableCell
+                  onClick={() => navigate(`/jobs/${job.id}`)}
+                  style={{ cursor: 'pointer', color: '#1976d2', textDecoration: 'underline' }}
+                >
+                  {job.companyName}
+                </TableCell>
                 <TableCell>{job.position}</TableCell>
                 <TableCell>{job.location}</TableCell>
                 <TableCell>
@@ -270,76 +280,36 @@ const Dashboard = () => {
       <Dialog open={formOpen} onClose={closeForm} maxWidth="sm" fullWidth>
         <DialogTitle>{formMode === 'add' ? 'Add New Application' : 'Edit Application'}</DialogTitle>
         <DialogContent dividers>
-          <TextField
-            label="Company Name"
-            name="companyName"
+          <Autocomplete
+            freeSolo
+            options={companies.map(c => c.name)}
             value={formData.companyName}
-            onChange={handleFormChange}
-            fullWidth margin="normal"
-            required
+            onInputChange={(event, newInputValue) => {
+              setFormData(prev => ({ ...prev, companyName: newInputValue }));
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Company Name"
+                required
+                helperText={companies.length === 0 ? "No companies found. Type to add new." : ""}
+              />
+            )}
           />
-          <TextField
-            label="Position"
-            name="position"
-            value={formData.position}
-            onChange={handleFormChange}
-            fullWidth margin="normal"
-            required
-          />
-          <TextField
-            label="Location"
-            name="location"
-            value={formData.location}
-            onChange={handleFormChange}
-            fullWidth margin="normal"
-          />
-          <TextField
-            label="Status"
-            name="status"
-            select
-            value={formData.status}
-            onChange={handleFormChange}
-            fullWidth margin="normal"
-          >
+
+
+
+          <TextField label="Position" name="position" value={formData.position} onChange={handleFormChange} fullWidth margin="normal" required />
+          <TextField label="Location" name="location" value={formData.location} onChange={handleFormChange} fullWidth margin="normal" />
+          <TextField label="Status" name="status" select value={formData.status} onChange={handleFormChange} fullWidth margin="normal">
             {statusOptions.map(status => (
               <MenuItem key={status} value={status}>{status}</MenuItem>
             ))}
           </TextField>
-          <TextField
-            label="Applied Date"
-            name="appliedDate"
-            type="date"
-            value={formData.appliedDate}
-            onChange={handleFormChange}
-            fullWidth margin="normal"
-            InputLabelProps={{ shrink: true }}
-          />
-          <TextField
-            label="Follow-up Date"
-            name="followUpDate"
-            type="date"
-            value={formData.followUpDate}
-            onChange={handleFormChange}
-            fullWidth margin="normal"
-            InputLabelProps={{ shrink: true }}
-          />
-          <TextField
-            label="Job Link"
-            name="jobLink"
-            value={formData.jobLink}
-            onChange={handleFormChange}
-            fullWidth margin="normal"
-          />
-          <TextField
-            label="Notes"
-            name="notes"
-            value={formData.notes}
-            onChange={handleFormChange}
-            fullWidth
-            margin="normal"
-            multiline
-            rows={4}
-          />
+          <TextField label="Applied Date" name="appliedDate" type="date" value={formData.appliedDate} onChange={handleFormChange} fullWidth margin="normal" InputLabelProps={{ shrink: true }} />
+          <TextField label="Follow-up Date" name="followUpDate" type="date" value={formData.followUpDate} onChange={handleFormChange} fullWidth margin="normal" InputLabelProps={{ shrink: true }} />
+          <TextField label="Job Link" name="jobLink" value={formData.jobLink} onChange={handleFormChange} fullWidth margin="normal" />
+          <TextField label="Notes" name="notes" value={formData.notes} onChange={handleFormChange} fullWidth margin="normal" multiline rows={4} />
         </DialogContent>
         <DialogActions>
           <Button onClick={closeForm}>Cancel</Button>
