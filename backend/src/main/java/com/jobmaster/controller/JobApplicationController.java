@@ -13,42 +13,41 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.jobmaster.dto.JobApplicationDTO;
-import com.jobmaster.model.JobApplication;
 import com.jobmaster.service.JobApplicationService;
 
 @RestController
 @RequestMapping("/jobs")
 public class JobApplicationController {
 
-    private final JobApplicationService jobApplicationService;
+	private final JobApplicationService jobApplicationService;
 
-    public JobApplicationController(JobApplicationService jobApplicationService) {
-        this.jobApplicationService = jobApplicationService;
-    }
+	public JobApplicationController(JobApplicationService jobApplicationService) {
+		this.jobApplicationService = jobApplicationService;
+	}
 
-    @PostMapping
-    public ResponseEntity<JobApplicationDTO> createJob(@RequestBody JobApplication jobApplication) {
-        return ResponseEntity.ok(jobApplicationService.createJob(jobApplication));
-    }
+	@PostMapping
+	public ResponseEntity<JobApplicationDTO> createJob(@RequestBody JobApplicationDTO dto) {
+		return ResponseEntity.ok(jobApplicationService.createJob(dto));
+	}
 
-    @GetMapping
-    public ResponseEntity<List<JobApplicationDTO>> getAllJobs() {
-        return ResponseEntity.ok(jobApplicationService.getAllJobsForCurrentUser());
-    }
+	@GetMapping
+	public ResponseEntity<List<JobApplicationDTO>> getAllJobs() {
+		return ResponseEntity.ok(jobApplicationService.getAllJobsForCurrentUser());
+	}
 
-    @GetMapping("/{id}")
-    public ResponseEntity<JobApplicationDTO> getJobById(@PathVariable Long id) {
-        return ResponseEntity.ok(jobApplicationService.getJobById(id));
-    }
+	@GetMapping("/{id}")
+	public ResponseEntity<JobApplicationDTO> getJobById(@PathVariable Long id) {
+		return ResponseEntity.ok(jobApplicationService.getJobById(id));
+	}
 
-    @PutMapping("/{id}")
-    public ResponseEntity<JobApplicationDTO> updateJob(@PathVariable Long id, @RequestBody JobApplication updatedJob) {
-        return ResponseEntity.ok(jobApplicationService.updateJob(id, updatedJob));
-    }
+	@PutMapping("/{id}")
+	public ResponseEntity<JobApplicationDTO> updateJob(@PathVariable Long id, @RequestBody JobApplicationDTO dto) {
+		return ResponseEntity.ok(jobApplicationService.updateJob(id, dto));
+	}
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteJob(@PathVariable Long id) {
-        jobApplicationService.deleteJob(id);
-        return ResponseEntity.noContent().build();
-    }
+	@DeleteMapping("/{id}")
+	public ResponseEntity<Void> deleteJob(@PathVariable Long id) {
+		jobApplicationService.deleteJob(id);
+		return ResponseEntity.noContent().build();
+	}
 }

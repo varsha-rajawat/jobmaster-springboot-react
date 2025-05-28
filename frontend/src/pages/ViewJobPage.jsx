@@ -7,10 +7,10 @@ import { getJobById } from '../services/jobService';
 
 const statusColor = (status) => {
   switch(status) {
-    case 'Applied': return 'default';
-    case 'Interview': return 'primary';
-    case 'Offer': return 'success';
-    case 'Rejected': return 'error';
+    case 'APPLIED': return 'default';
+    case 'INTERVIEW': return 'primary';
+    case 'OFFER': return 'success';
+    case 'REJECTED': return 'error';
     default: return 'default';
   }
 }
