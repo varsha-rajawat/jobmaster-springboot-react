@@ -6,18 +6,20 @@ export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
 
   const [auth, setAuth] = useState({
-    user: null,
+    user: JSON.parse(localStorage.getItem("user")) || null,
     token: localStorage.getItem("token") || null,
   });
 
   const login = (user, token) => {
     localStorage.setItem("token", token);
+    localStorage.setItem("user", JSON.stringify(user));
     setAuth({ user, token });
     navigate("/dashboard");
   };
 
   const logout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
     setAuth({ user: null, token: null });
     navigate("/login");
   };

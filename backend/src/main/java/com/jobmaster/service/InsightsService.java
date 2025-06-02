@@ -35,6 +35,7 @@ public class InsightsService {
 	    // Weekly count
 	    LocalDate oneWeekAgo = LocalDate.now().minusDays(6);
 	    List<WeeklyApplicationCountDTO> weeklyCounts = applications.stream()
+	    		.filter(app -> app.getAppliedDate() != null)
 	            .filter(app -> !app.getAppliedDate().isBefore(oneWeekAgo))
 	            .collect(Collectors.groupingBy(JobApplication::getAppliedDate, Collectors.counting()))
 	            .entrySet().stream()
@@ -43,6 +44,7 @@ public class InsightsService {
 
 	    // Monthly count (group by month name or number)
 	    List<MonthlyApplicationCountDTO> monthlyCounts = applications.stream()
+	    		.filter(app -> app.getAppliedDate() != null)
 	            .collect(Collectors.groupingBy(
 	                    app -> app.getAppliedDate().getMonth().toString(), // or app.getAppliedDate().getMonthValue()
 	                    Collectors.counting()))
