@@ -56,7 +56,7 @@ public class AuthServiceImpl implements AuthService {
 
             String jwt = jwtService.generateToken(userDetails);
 
-            return new AuthResponseDTO("Login successful", user.getId(), jwt);
+            return new AuthResponseDTO("Login successful", userMapper.toUserDTO(user), jwt);
 
         } catch (BadCredentialsException e) {
             // Bad username or password

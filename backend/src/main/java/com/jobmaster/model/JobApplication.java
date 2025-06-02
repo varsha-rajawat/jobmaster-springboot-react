@@ -1,6 +1,10 @@
 package com.jobmaster.model;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -54,6 +58,14 @@ public class JobApplication {
 
     private LocalDate appliedDate;
     private LocalDate followUpDate;
+
+    @CreationTimestamp
+    @Column(updatable = false, nullable = true)
+    private LocalDateTime createdDate;
+
+    @UpdateTimestamp
+    @Column(nullable = true)
+    private LocalDateTime updatedDate;
 
     private String jobLink;
 
