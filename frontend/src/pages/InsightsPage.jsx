@@ -10,7 +10,8 @@ import { Loader2 } from 'lucide-react';
 const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff7f50', '#8dd1e1', '#a4de6c', '#d0ed57'];
 
 const InsightsPage = () => {
-    const { user } = useContext(AuthContext);
+    const { auth } = useContext(AuthContext);
+    const user = auth.user;
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
 
