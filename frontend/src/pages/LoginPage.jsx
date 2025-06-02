@@ -16,7 +16,7 @@ const LoginPage = () => {
     setError("");
     try {
       const res = await loginUser(form);
-      login(res.data.userId, res.data?.token);
+      login(res.data.user, res.data?.token);
     } catch (err) {
       setError(
         err.response?.data?.message || "Login failed. Please try again."
