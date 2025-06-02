@@ -6,6 +6,7 @@ import DashboardPage from './pages/DashboardPage';
 import PrivateRoute from './components/PrivateRoute';
 import PublicRoute from './components/PublicRoute';
 import ViewJobPage from './pages/ViewJobPage';
+import InsightsPage from './pages/InsightsPage';
 
 function App() {
   return (
@@ -38,6 +39,11 @@ function App() {
               <ViewJobPage />
               </PrivateRoute>
             } />
+
+            <Route path="/insights" element= {<PrivateRoute>
+              <InsightsPage />
+              </PrivateRoute>} />
+
         </Routes>
       </main>
     </>
