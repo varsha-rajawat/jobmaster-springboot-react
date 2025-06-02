@@ -8,6 +8,7 @@ import Autocomplete from '@mui/material/Autocomplete';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import { fetchJobs, createJob, updateJob, deleteJob } from '../services/jobService';
 import { useNavigate } from 'react-router-dom';
 import { fetchCompanies } from '../services/companyService';
@@ -253,12 +254,7 @@ const Dashboard = () => {
           ) : (
             filteredJobs.map(job => (
               <TableRow key={job.id} hover>
-                <TableCell
-                  onClick={() => navigate(`/jobs/${job.id}`)}
-                  style={{ cursor: 'pointer', color: '#1976d2', textDecoration: 'underline' }}
-                >
-                  {job.companyName}
-                </TableCell>
+                <TableCell>{job.companyName}</TableCell>
                 <TableCell>{job.position}</TableCell>
                 <TableCell>{job.location}</TableCell>
                 <TableCell>
@@ -267,6 +263,7 @@ const Dashboard = () => {
                 <TableCell>{job.appliedDate}</TableCell>
                 <TableCell>{job.followUpDate}</TableCell>
                 <TableCell>
+                  <IconButton onClick={() => navigate(`/jobs/${job.id}`)}><VisibilityIcon /></IconButton>
                   <IconButton onClick={() => openEditForm(job)}><EditIcon /></IconButton>
                   <IconButton onClick={() => openDeleteConfirm(job)}><DeleteIcon /></IconButton>
                 </TableCell>

@@ -21,7 +21,7 @@ const RegisterPage = () => {
         err.response?.data?.message || "Registration failed. Please try again."
       );
     }
-  };
+  }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-100 to-indigo-200 px-4">
