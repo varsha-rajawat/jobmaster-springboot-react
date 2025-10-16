@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import {
   Container, Typography, Table, TableHead, TableBody, TableRow, TableCell,
   IconButton, Button, Dialog, DialogTitle, DialogContent, DialogActions,
@@ -36,6 +36,8 @@ const Dashboard = () => {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [jobToDelete, setJobToDelete] = useState(null);
   const [companies, setCompanies] = useState([]);
+  const [sortField, setSortField] = useState('appliedDate');
+  const [sortOrder, setSortOrder] = useState("desc");
 
   const navigate = useNavigate();
 
@@ -78,14 +80,44 @@ const Dashboard = () => {
     loadCompanies();
   }, []);
 
-  const filteredJobs = jobs.filter(job => {
-    const matchesStatus = filterStatus ? job.status === filterStatus : true;
-    const matchesSearch = searchTerm
-      ? job.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      job.position.toLowerCase().includes(searchTerm.toLowerCase())
-      : true;
-    return matchesStatus && matchesSearch;
-  });
+  const handleSort = (field) => {
+    const order = (field === sortField && sortOrder === 'asc') ? 'desc' : 'asc';
+    setSortField(field);
+    setSortOrder(order);
+  };
+
+
+  const filteredJobs = useMemo(() => {
+    let result = jobs.filter(job => {
+      const matchesStatus = filterStatus ? job.status === filterStatus : true;
+      const matchesSearch = searchTerm
+        ? job.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        job.position.toLowerCase().includes(searchTerm.toLowerCase())
+        : true;
+      return matchesStatus && matchesSearch;
+    });
+    if (sortField) {
+      result = result.sort((a, b) => {
+        if (a[sortField] === null) return 1;
+        if (b[sortField] === null) return -1;
+        if (a[sortField] === null && b[sortField] === null) return 0;
+
+        // Special case for date fields
+        if (sortField.includes('Date')) {
+          return sortOrder === 'asc'
+            ? new Date(a[sortField]) - new Date(b[sortField])
+            : new Date(b[sortField]) - new Date(a[sortField]);
+        }
+
+        // Default alphabetical/number sort
+        if (a[sortField] < b[sortField]) return sortOrder === 'asc' ? -1 : 1;
+        if (a[sortField] > b[sortField]) return sortOrder === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+
+    return result;
+  }, [jobs, filterStatus, searchTerm, sortField, sortOrder]);
 
   const openAddForm = () => {
     setFormMode('add');
@@ -180,8 +212,8 @@ const Dashboard = () => {
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>
       <Button onClick={() => navigate('/insights')}>
-          📊 View Insights
-        </Button>
+        📊 View Insights
+      </Button>
       <Typography variant="h4" gutterBottom>Job Applications Dashboard</Typography>
 
       {/* Filters */}
@@ -240,15 +272,28 @@ const Dashboard = () => {
       <Table>
         <TableHead>
           <TableRow>
-            <TableCell>Company</TableCell>
-            <TableCell>Position</TableCell>
-            <TableCell>Location</TableCell>
-            <TableCell>Status</TableCell>
-            <TableCell>Applied Date</TableCell>
-            <TableCell>Follow-up Date</TableCell>
+            <TableCell onClick={() => handleSort('companyName')} style={{ cursor: 'pointer' }}>
+              Company {sortField === 'companyName' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
+            </TableCell>
+            <TableCell onClick={() => handleSort('position')} style={{ cursor: 'pointer' }}>
+              Position {sortField === 'position' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
+            </TableCell>
+            <TableCell onClick={() => handleSort('location')} style={{ cursor: 'pointer' }}>
+              Location {sortField === 'location' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
+            </TableCell>
+            <TableCell onClick={() => handleSort('status')} style={{ cursor: 'pointer' }}>
+              Status {sortField === 'status' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
+            </TableCell>
+            <TableCell onClick={() => handleSort('appliedDate')} style={{ cursor: 'pointer' }}>
+              Applied Date {sortField === 'appliedDate' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
+            </TableCell>
+            <TableCell onClick={() => handleSort('followUpDate')} style={{ cursor: 'pointer' }}>
+              Follow-up Date {sortField === 'followUpDate' ? (sortOrder === 'asc' ? '↑' : '↓') : ''}
+            </TableCell>
             <TableCell>Actions</TableCell>
           </TableRow>
         </TableHead>
+
         <TableBody>
           {loading ? (
             <TableRow><TableCell colSpan={7}>Loading...</TableCell></TableRow>
