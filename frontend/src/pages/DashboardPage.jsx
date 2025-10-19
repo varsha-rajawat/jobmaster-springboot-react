@@ -212,8 +212,8 @@ const Dashboard = () => {
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>
       <Button onClick={() => navigate('/insights')}>
-        📊 View Insights
-      </Button>
+          📊 View Insights
+        </Button>
       <Typography variant="h4" gutterBottom>Job Applications Dashboard</Typography>
 
       {/* Filters */}
