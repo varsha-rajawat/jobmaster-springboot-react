@@ -10,6 +10,8 @@ backend/.project
 backend/.settings/
 backend/.vscode/
 backend/*.iml
+backend/src/main/resources/application.properties
+
 
 # Frontend (Angular)
 frontend/node_modules/
