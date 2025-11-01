@@ -21,8 +21,11 @@ public class AIController {
 	
 	@PostMapping("/analyze")
 	public Map<String, Object> analyzeResume(@ModelAttribute ResumeAnalysisRequestDTO request) throws IOException {
-	    return aiAnalysisService.analyzeResumeAndJD(request.getResume(), request.getJobDescription());
+		
+
+	    return aiAnalysisService.analyzeResumeAndJD(request.getResume(), request.getResumeText(), request.getJobDescription());
 	}
+	
 
 	
 }
