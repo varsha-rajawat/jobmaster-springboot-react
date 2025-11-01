@@ -212,8 +212,16 @@ const Dashboard = () => {
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>
       <Button onClick={() => navigate('/insights')}>
-          📊 View Insights
-        </Button>
+        📊 View Insights
+      </Button>
+      <Button
+        variant="contained"
+        color="secondary"
+        sx={{ ml: 2 }}
+        onClick={() => navigate('/ai/resume-analysis')}
+      >
+        🧠 AI Resume Analysis
+      </Button>
       <Typography variant="h4" gutterBottom>Job Applications Dashboard</Typography>
 
       {/* Filters */}

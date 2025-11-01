@@ -12,5 +12,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ResumeAnalysisRequestDTO {
 	private MultipartFile resume;
+	private String resumeText;
 	private String jobDescription;
 }

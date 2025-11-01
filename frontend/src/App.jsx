@@ -7,6 +7,7 @@ import PrivateRoute from './components/PrivateRoute';
 import PublicRoute from './components/PublicRoute';
 import ViewJobPage from './pages/ViewJobPage';
 import InsightsPage from './pages/InsightsPage';
+import AiResumeAnalysis from './pages/AiResumeAnalysis';
 
 function App() {
   return (
@@ -37,12 +38,15 @@ function App() {
           <Route path="/jobs/:id" element={
             <PrivateRoute>
               <ViewJobPage />
-              </PrivateRoute>
-            } />
+            </PrivateRoute>
+          } />
 
-            <Route path="/insights" element= {<PrivateRoute>
-              <InsightsPage />
-              </PrivateRoute>} />
+          <Route path="/insights" element={<PrivateRoute>
+            <InsightsPage />
+          </PrivateRoute>} />
+
+          <Route path="/ai/resume-analysis" element={<PrivateRoute><AiResumeAnalysis /></PrivateRoute>} />
+
 
         </Routes>
       </main>
