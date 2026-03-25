@@ -8,12 +8,19 @@ import PublicRoute from './components/PublicRoute';
 import ViewJobPage from './pages/ViewJobPage';
 import InsightsPage from './pages/InsightsPage';
 import AiResumeAnalysis from './pages/AiResumeAnalysis';
+import { useLocation } from "react-router-dom";
 
 function App() {
+  const location = useLocation();
+
+  const hideHeader =
+    location.pathname === "/login" || location.pathname === "/signup";
+
+  console.log("Current path:", location.pathname, "Hide header:", hideHeader);
   return (
     <>
-      <Header />
-      <main className="p-4">
+     {!hideHeader && <Header />}
+      <main className="pt-14 min-h-screen">
         <Routes>
           <Route path="/" element={<Navigate to="/login" />} />
 

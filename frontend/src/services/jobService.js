@@ -2,7 +2,7 @@ import api from './api';
 
 const BASE_PATH = '/jobs';
 
-export const fetchJobs = () => api.get(BASE_PATH);
+export const getJobs = () => api.get(BASE_PATH);
 
 export const createJob = (jobData) => api.post(BASE_PATH, jobData);
 
